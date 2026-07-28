@@ -7,6 +7,7 @@ export default function Navbar({ title }) {
 
   const handleLogout = async () => {
     await supabase.auth.signOut({ scope: 'local' });
+    localStorage.removeItem('student');
     navigate('/login');
   };
   return (

@@ -4,6 +4,7 @@ import { supabase } from '../supabaseClient';
 
 export default function Login() {
   const [role, setRole] = useState('student');
+  const [pin, setPin] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -14,6 +15,19 @@ export default function Login() {
     setError('');
 
     if (role === 'student') {
+      const { data, error: lookupError } = await supabase
+        .from('students')
+        .select('*')
+        .eq('pin_no', pin)
+        .single();
+
+      if (lookupError || !data) {
+        setError('Invalid PIN number.');
+        return;
+      }
+
+      // Remember this student on this browser
+      localStorage.setItem('student', JSON.stringify(data));
       navigate('/dashboard');
       return;
     }
@@ -42,6 +56,13 @@ export default function Login() {
               <option value="admin">Administrator</option>
             </select>
           </div>
+
+          {role === 'student' && (
+            <div>
+              <label style={{ display: 'block', marginBottom: '5px' }}><strong>PIN Number:</strong></label>
+              <input type="text" required style={{ width: '100%', padding: '10px' }} value={pin} onChange={e => setPin(e.target.value)} />
+            </div>
+          )}
 
           {role === 'admin' && (
             <>

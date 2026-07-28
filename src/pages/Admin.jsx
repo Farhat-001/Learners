@@ -7,6 +7,8 @@ export default function Admin() {
   const [form, setForm] = useState({ scheme: 'C-20', branch: 'CME', title: '' });
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [studentForm, setStudentForm] = useState({ pin_no: '', scheme: 'C-20', branch: 'CME' });
+const [addingStudent, setAddingStudent] = useState(false);
 
   const fetchMaterials = async () => {
     const { data, error } = await supabase.from('materials').select('*').order('created_at', { ascending: false });
@@ -16,6 +18,24 @@ export default function Admin() {
 
   useEffect(() => { fetchMaterials(); }, []);
 
+const handleAddStudent = async (e) => {
+  e.preventDefault();
+  setAddingStudent(true);
+
+  const { error } = await supabase.from('students').insert([{
+    pin_no: studentForm.pin_no,
+    scheme: studentForm.scheme,
+    branch: studentForm.branch
+  }]);
+
+  if (error) {
+    alert('Failed to add student: ' + error.message);
+  } else {
+    alert('Student added successfully!');
+    setStudentForm({ pin_no: '', scheme: 'C-20', branch: 'CME' });
+  }
+  setAddingStudent(false);
+};
   const handleUpload = async (e) => {
     e.preventDefault();
     if (!file) { alert('Please choose a PDF file first.'); return; }
@@ -97,6 +117,36 @@ export default function Admin() {
             </button>
           </form>
         </div>
+        <div style={{ flex: '1', minWidth: '300px', background: '#f8f9fa', padding: '20px', borderRadius: '8px', border: '1px solid #ddd' }}>
+  <h3 style={{ color: '#003366', marginTop: 0 }}>🎓 Add Student</h3>
+  <form onSubmit={handleAddStudent} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <div>
+      <label style={{ display: 'block', fontSize: '14px' }}>PIN Number:</label>
+      <input type="text" value={studentForm.pin_no} required style={{ width: '100%', padding: '8px' }} onChange={e => setStudentForm({...studentForm, pin_no: e.target.value})} />
+    </div>
+    <div style={{ display: 'flex', gap: '10px' }}>
+      <div style={{ flex: 1 }}>
+        <label style={{ display: 'block', fontSize: '14px' }}>Branch:</label>
+        <select value={studentForm.branch} style={{ width: '100%', padding: '8px' }} onChange={e => setStudentForm({...studentForm, branch: e.target.value})}>
+          <option value="CME">CME</option>
+          <option value="ECE">ECE</option>
+          <option value="EEE">EEE</option>
+        </select>
+      </div>
+      <div style={{ flex: 1 }}>
+        <label style={{ display: 'block', fontSize: '14px' }}>Scheme:</label>
+        <select value={studentForm.scheme} style={{ width: '100%', padding: '8px' }} onChange={e => setStudentForm({...studentForm, scheme: e.target.value})}>
+          <option value="C-20">C-20</option>
+          <option value="C-16">C-16</option>
+          <option value="C-23">C-23</option>
+        </select>
+      </div>
+    </div>
+    <button type="submit" disabled={addingStudent} style={{ backgroundColor: '#003366', color: 'white', border: 'none', padding: '10px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+      {addingStudent ? 'Adding...' : 'Add Student'}
+    </button>
+  </form>
+</div>
 
         <div style={{ flex: '2', minWidth: '500px' }}>
           <h3 style={{ color: '#333', marginTop: 0 }}>📊 Uploaded Materials</h3>
