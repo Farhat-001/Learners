@@ -23,7 +23,7 @@ const handleAddStudent = async (e) => {
   setAddingStudent(true);
 
   const { error } = await supabase.from('students').insert([{
-    pin_no: studentForm.pin_no,
+    pin: studentForm.pin_no,
     scheme: studentForm.scheme,
     branch: studentForm.branch
   }]);

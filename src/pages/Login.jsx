@@ -18,7 +18,7 @@ export default function Login() {
       const { data, error: lookupError } = await supabase
         .from('students')
         .select('*')
-        .eq('pin_no', pin)
+        .eq('pin', pin)
         .single();
 
       if (lookupError || !data) {
