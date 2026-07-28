@@ -1,14 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../supabaseClient';
 
 export default function Navbar({ title }) {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    // Clear any active sessions here later
+  const handleLogout = async () => {
+    await supabase.auth.signOut({ scope: 'local' });
     navigate('/login');
   };
-
   return (
     <nav style={{
       display: 'flex',

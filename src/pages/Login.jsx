@@ -1,29 +1,28 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../supabaseClient';
 
 export default function Login() {
-  const [credentials, setCredentials] = useState({ pin: '', password: '', role: 'student' });
+  const [role, setRole] = useState('student');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
 
-    // Basic routing validation rules
-    if (credentials.role === 'admin') {
-      if (credentials.pin.toLowerCase() === 'admin' && credentials.password === 'admin123') {
-        navigate('/admin');
-      } else {
-        setError('Invalid Admin Credentials! (Use pin: admin, pass: admin123)');
-      }
+    if (role === 'student') {
+      navigate('/dashboard');
+      return;
+    }
+
+    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+    if (authError) {
+      setError('Invalid admin credentials.');
     } else {
-      if (credentials.pin.trim() === '' || credentials.password.trim() === '') {
-        setError('Please enter your PIN and password.');
-      } else {
-        // Directs valid student formats straight to materials dashboard
-        navigate('/dashboard');
-      }
+      navigate('/admin');
     }
   };
 
@@ -32,45 +31,33 @@ export default function Login() {
       <div style={{ padding: '2.5rem', maxWidth: '400px', width: '100%', border: '1px solid #ccc', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
         <h2 style={{ textAlign: 'center', color: '#003366', marginBottom: '5px' }}>AANM & VVRSR</h2>
         <h4 style={{ textAlign: 'center', color: '#666', marginTop: '0', marginBottom: '20px' }}>Polytechnic Backlog Portal</h4>
-        
+
         {error && <p style={{ color: 'red', textAlign: 'center', fontSize: '14px' }}>{error}</p>}
-        
+
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
           <div>
-            <label style={{ display: 'block', marginBottom: '5px' }}><strong>PIN / Username:</strong></label>
-            <input 
-              type="text" 
-              required 
-              style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }} 
-              placeholder="e.g., 21094-CM-001 or admin"
-              onChange={e => setCredentials({...credentials, pin: e.target.value})} 
-            />
-          </div>
-          
-          <div>
-            <label style={{ display: 'block', marginBottom: '5px' }}><strong>Password:</strong></label>
-            <input 
-              type="password" 
-              required 
-              style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }} 
-              placeholder="••••••••"
-              onChange={e => setCredentials({...credentials, password: e.target.value})} 
-            />
-          </div>
-          
-          <div>
             <label style={{ display: 'block', marginBottom: '5px' }}><strong>Login As:</strong></label>
-            <select 
-              style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
-              onChange={e => setCredentials({...credentials, role: e.target.value})}
-            >
-              <option value="student">Student Explorer</option>
-              <option value="admin">System Administrator</option>
+            <select value={role} style={{ width: '100%', padding: '10px' }} onChange={e => setRole(e.target.value)}>
+              <option value="student">Student (check backlog status)</option>
+              <option value="admin">Administrator</option>
             </select>
           </div>
-          
-          <button type="submit" style={{ backgroundColor: '#003366', color: 'white', border: 'none', padding: '12px', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold', marginTop: '10px' }}>
-            Access Account
+
+          {role === 'admin' && (
+            <>
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Email:</strong></label>
+                <input type="email" required style={{ width: '100%', padding: '10px' }} onChange={e => setEmail(e.target.value)} />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Password:</strong></label>
+                <input type="password" required style={{ width: '100%', padding: '10px' }} onChange={e => setPassword(e.target.value)} />
+              </div>
+            </>
+          )}
+
+          <button type="submit" style={{ backgroundColor: '#003366', color: 'white', border: 'none', padding: '12px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+            {role === 'admin' ? 'Sign In' : 'Continue'}
           </button>
         </form>
       </div>
