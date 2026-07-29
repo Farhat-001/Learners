@@ -29,7 +29,11 @@ const handleAddStudent = async (e) => {
   }]);
 
   if (error) {
-    alert('Failed to add student: ' + error.message);
+    if (error.code === '23505') {
+      alert('That PIN is already taken. Please use a different PIN.');
+    } else {
+      alert('Failed to add student: ' + error.message);
+    }
   } else {
     alert('Student added successfully!');
     setStudentForm({ pin_no: '', scheme: 'C-20', branch: 'CME' });
