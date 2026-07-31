@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { supabase } from '../supabaseClient';
+import './Dashboard.css';
 
 export default function Dashboard() {
   const [student, setStudent] = useState(null);
@@ -11,16 +12,12 @@ export default function Dashboard() {
 
   useEffect(() => {
     const saved = localStorage.getItem('student');
-    if (!saved) {
-      navigate('/login');
-      return;
-    }
+    if (!saved) { navigate('/login'); return; }
     setStudent(JSON.parse(saved));
   }, [navigate]);
 
   useEffect(() => {
     if (!student) return;
-
     const fetchMaterials = async () => {
       setLoading(true);
       const { data, error } = await supabase
@@ -28,55 +25,65 @@ export default function Dashboard() {
         .select('*')
         .eq('scheme', student.scheme)
         .eq('branch', student.branch);
-
-      if (error) {
-        console.error('Error fetching materials:', error);
-        setMaterials([]);
-      } else {
-        setMaterials(data);
-      }
+      if (error) { console.error(error); setMaterials([]); }
+      else setMaterials(data);
       setLoading(false);
     };
-
     fetchMaterials();
   }, [student]);
 
   if (!student) return null;
 
+  const isNew = (createdAt) => {
+    const days = (Date.now() - new Date(createdAt)) / 86400000;
+    return days <= 7;
+  };
+
   return (
-    <div style={{ padding: '0 2rem' }}>
+    <div className="page">
       <Navbar title="Student Dashboard" />
 
-      <div style={{ background: '#f9f9f9', padding: '20px', borderRadius: '8px', border: '1px solid #eee' }}>
+      <div className="card student-card">
         <h3>Welcome, {student.name}</h3>
-        <p style={{ color: '#666' }}>PIN: {student.pin_no} &nbsp;|&nbsp; Scheme: {student.scheme} &nbsp;|&nbsp; Branch: {student.branch}</p>
+        <p className="student-meta">
+          PIN {student.pin_no} · {student.scheme} · {student.branch}
+        </p>
       </div>
 
-      <div style={{ marginTop: '2rem', padding: '20px', border: '1px solid #b3d7ff', borderRadius: '8px', backgroundColor: '#f0f7ff' }}>
-        <h3 style={{ color: '#003366', marginTop: 0 }}>📚 Your Backlog Materials</h3>
+      <div className="materials-section">
+        <h3 className="section-heading">Your Backlog Materials</h3>
 
-        {loading ? (
-          <p style={{ color: '#666' }}>Loading materials...</p>
+{loading ? (
+          <div className="loading-skeleton">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="skeleton-item">
+                <div className="skeleton-line" />
+                <div className="skeleton-line" />
+                <div className="skeleton-line" />
+              </div>
+            ))}
+          </div>
         ) : materials.length > 0 ? (
-          <ul style={{ listStyleType: 'none', padding: 0 }}>
+          <div className="materials-grid">
             {materials.map((file) => (
-              <li key={file.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 15px', backgroundColor: 'white', marginBottom: '10px', borderRadius: '4px', border: '1px solid #e0e0e0' }}>
-                <div>
-                  <span style={{ fontSize: '16px', color: '#333' }}>📄 {file.title}</span>
+              <div key={file.id} className="card material-card">
+                <div className="material-top">
+                  <span className="material-title">{file.title}</span>
+                  <span className={`chip ${isNew(file.created_at) ? 'chip-new' : 'chip-available'}`}>
+                    {isNew(file.created_at) ? 'New' : 'Available'}
+                  </span>
                 </div>
-                <a
-                  href={file.file_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '6px 15px', borderRadius: '4px', textDecoration: 'none' }}
-                >
+                <a href={file.file_url} target="_blank" rel="noreferrer" className="btn btn-primary material-download">
                   Download
                 </a>
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         ) : (
-          <p style={{ color: '#666' }}>No specific backlog materials uploaded yet for this combination.</p>
+          <div className="card empty-state">
+            <p>No backlog materials uploaded yet for {student.scheme} · {student.branch}.</p>
+            <span className="muted">Check back after your department adds them.</span>
+          </div>
         )}
       </div>
     </div>

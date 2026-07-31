@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import './ProtectedRoute.css';
 
 export default function ProtectedRoute({ children }) {
   const [session, setSession] = useState(undefined);
@@ -11,6 +12,14 @@ export default function ProtectedRoute({ children }) {
     return () => listener.subscription.unsubscribe();
   }, []);
 
-  if (session === undefined) return <p style={{ textAlign: 'center', marginTop: '2rem' }}>Checking session...</p>;
+  if (session === undefined) {
+    return (
+      <div className="session-check">
+        <div className="session-spinner" />
+        <span>Checking session…</span>
+      </div>
+    );
+  }
+
   return session ? children : <Navigate to="/login" />;
 }

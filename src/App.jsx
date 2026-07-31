@@ -8,7 +8,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 function App() {
   return (
     <Router>
-      <div style={{ fontFamily: 'Arial, sans-serif', minHeight: '100vh', margin: 0, padding: 0 }}>
+      <div className="page-transition">
         <Routes>
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="/login" element={<Login />} />

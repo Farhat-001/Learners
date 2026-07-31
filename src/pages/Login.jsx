@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import './Login.css';
 
 export default function Login() {
   const [role, setRole] = useState('student');
@@ -8,11 +9,13 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
+    setSubmitting(true);
 
     if (role === 'student') {
       const { data, error: lookupError } = await supabase
@@ -23,10 +26,10 @@ export default function Login() {
 
       if (lookupError || !data) {
         setError('Invalid PIN number.');
+        setSubmitting(false);
         return;
       }
 
-      // Remember this student on this browser
       localStorage.setItem('student', JSON.stringify(data));
       navigate('/dashboard');
       return;
@@ -35,50 +38,70 @@ export default function Login() {
     const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
     if (authError) {
       setError('Invalid admin credentials.');
+      setSubmitting(false);
     } else {
       navigate('/admin');
     }
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
-      <div style={{ padding: '2.5rem', maxWidth: '400px', width: '100%', border: '1px solid #ccc', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
-        <h2 style={{ textAlign: 'center', color: '#003366', marginBottom: '5px' }}>AANM & VVRSR</h2>
-        <h4 style={{ textAlign: 'center', color: '#666', marginTop: '0', marginBottom: '20px' }}>Polytechnic Backlog Portal</h4>
+    <div className="login-screen">
+      <div className="login-orb-2" />
+      <div className="card login-card">
+        <div className="login-logo">LP</div>
+        <h2 className="login-title">AANM &amp; VVRSR</h2>
+        <p className="login-subtitle">Polytechnic Backlog Portal</p>
 
-        {error && <p style={{ color: 'red', textAlign: 'center', fontSize: '14px' }}>{error}</p>}
+        <div className="role-toggle">
+          <button
+            type="button"
+            className={`role-btn ${role === 'student' ? 'role-btn-active' : ''}`}
+            onClick={() => setRole('student')}
+          >
+            Student
+          </button>
+          <button
+            type="button"
+            className={`role-btn ${role === 'admin' ? 'role-btn-active' : ''}`}
+            onClick={() => setRole('admin')}
+          >
+            Administrator
+          </button>
+        </div>
 
-        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          <div>
-            <label style={{ display: 'block', marginBottom: '5px' }}><strong>Login As:</strong></label>
-            <select value={role} style={{ width: '100%', padding: '10px' }} onChange={e => setRole(e.target.value)}>
-              <option value="student">Student (check backlog status)</option>
-              <option value="admin">Administrator</option>
-            </select>
-          </div>
+        {error && <p className="login-error">{error}</p>}
 
+        <form onSubmit={handleLogin} className="form-stack">
           {role === 'student' && (
             <div>
-              <label style={{ display: 'block', marginBottom: '5px' }}><strong>PIN Number:</strong></label>
-              <input type="text" required style={{ width: '100%', padding: '10px' }} value={pin} onChange={e => setPin(e.target.value)} />
+              <label className="field-label">PIN Number</label>
+              <input
+                type="text"
+                required
+                autoFocus
+                className="field-input pin-input"
+                value={pin}
+                onChange={e => setPin(e.target.value)}
+                placeholder="••••"
+              />
             </div>
           )}
 
           {role === 'admin' && (
             <>
               <div>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Email:</strong></label>
-                <input type="email" required style={{ width: '100%', padding: '10px' }} onChange={e => setEmail(e.target.value)} />
+                <label className="field-label">Email</label>
+                <input type="email" required className="field-input" onChange={e => setEmail(e.target.value)} />
               </div>
               <div>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Password:</strong></label>
-                <input type="password" required style={{ width: '100%', padding: '10px' }} onChange={e => setPassword(e.target.value)} />
+                <label className="field-label">Password</label>
+                <input type="password" required className="field-input" onChange={e => setPassword(e.target.value)} />
               </div>
             </>
           )}
 
-          <button type="submit" style={{ backgroundColor: '#003366', color: 'white', border: 'none', padding: '12px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
-            {role === 'admin' ? 'Sign In' : 'Continue'}
+          <button type="submit" disabled={submitting} className="btn btn-primary login-submit">
+            {submitting ? 'Please wait…' : role === 'admin' ? 'Sign In' : 'Continue'}
           </button>
         </form>
       </div>
