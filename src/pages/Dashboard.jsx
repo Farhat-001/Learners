@@ -46,7 +46,7 @@ export default function Dashboard() {
       <div className="card student-card">
         <h3>Welcome, {student.name}</h3>
         <p className="student-meta">
-          PIN {student.pin_no} · {student.scheme} · {student.branch}
+           {student.pin} · {student.scheme} · {student.branch}
         </p>
       </div>
 
