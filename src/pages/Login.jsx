@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
-import logo from '../assets/logo.png';
 import './Login.css';
 
 export default function Login() {
@@ -45,12 +44,17 @@ export default function Login() {
     }
   };
 
-return (
+  return (
     <div className="login-screen">
-      <div className="login-orb-2" />
       <div className="login-container">
         <div className="card login-card">
-          <div className="login-logo">LP</div>
+          <Link to="/" className="login-logo" aria-label="Learners Portal home">
+            <svg viewBox="0 0 56 56" className="login-logo-seal" aria-hidden="true">
+              <circle cx="28" cy="28" r="25" className="seal-ring" />
+              <circle cx="28" cy="28" r="20" className="seal-ring-inner" />
+              <text x="28" y="34" textAnchor="middle" className="seal-text">LP</text>
+            </svg>
+          </Link>
           <h2 className="login-title">AANM &amp; VVRSR</h2>
           <p className="login-subtitle">Polytechnic Backlog Portal</p>
 
@@ -81,10 +85,11 @@ return (
                   type="text"
                   required
                   autoFocus
+                  autoComplete="off"
                   className="field-input pin-input"
                   value={pin}
                   onChange={e => setPin(e.target.value)}
-                  placeholder="••••"
+                  placeholder="e.g. 24030-CM-001"
                 />
               </div>
             )}
@@ -107,7 +112,6 @@ return (
             </button>
           </form>
         </div>
-        <img src={logo} alt="Login visual" className="login-side-image" />
       </div>
     </div>
   );
