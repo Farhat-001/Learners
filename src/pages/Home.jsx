@@ -1,6 +1,7 @@
 // src/pages/Home.jsx
 import { Link } from "react-router-dom";
 import "./Home.css";
+import homePic from "../assets/home-pic.png";
 
 export default function Home() {
   return (
@@ -16,7 +17,7 @@ export default function Home() {
       {/* Hero section with image */}
       <section className="home-hero">
         <h1>Welcome to Learners Portal</h1>
-        <img src="src/assets/home pic.png" alt="Learners Portal" className="hero-image" />
+        <img src={homePic} alt="Learners Portal" className="hero-image" />
         <p>Your one-stop solution for backlog materials and student support.</p>
       </section>
 
