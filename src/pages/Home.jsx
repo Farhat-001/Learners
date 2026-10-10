@@ -15,8 +15,8 @@ export default function Home() {
 
       {/* Hero section with image */}
       <section className="home-hero">
-        <img src="/images/portal-hero.png" alt="Learners Portal" className="hero-image" />
         <h1>Welcome to Learners Portal</h1>
+        <img src="src/assets/home pic.png" alt="Learners Portal" className="hero-image" />
         <p>Your one-stop solution for backlog materials and student support.</p>
       </section>
 
@@ -24,10 +24,8 @@ export default function Home() {
       <section className="home-info">
         <h2>About This Project</h2>
         <p>
-          The Learners Portal is designed to help students access backlog materials,
-          track academic progress, and stay connected with administrators. 
-          It simplifies the process of managing academic records and ensures 
-          students can focus on learning.
+          The Learners Portal is designed to help students of AANM & VVRSR to access backlog materials releated to thiere department and can clear thiere backlogs by staying in Home.
+          this portal gives all b-tech level meterials along with complete syllabus.
         </p>
       </section>
     </div>
